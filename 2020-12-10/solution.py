@@ -25,7 +25,7 @@ print(diff_counts[1] * diff_counts[3])
 # part 2
 
 diffs_str = ''.join(map(str, diffs.tolist()))
-diffs = re.split(r"(?:3+)", diffs_str)
+diffs = re.split(r"(?:3+)", diffs_str)  # split the string on 3s
 
 arrangments = 1
 for group in diffs:
