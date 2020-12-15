@@ -74,8 +74,5 @@ if __name__ == "__main__":
     values = [format(int(val), "036b")
               if val.isnumeric() else val for val in values]
 
-    # print(addresses)
-    # print(values)
-
     print("Part1:", part1(addresses, values))
     print("Part2:", part2(addresses, values))
