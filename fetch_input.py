@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 from datetime import date
+from distutils.dir_util import copy_tree
 
 import requests
 
@@ -12,9 +13,12 @@ def _get_cookie(path="cookie.json"):
 
 
 def _fetch_input(day, year):
-    output_dir = f"bix{year}-12-{day}"
+    output_dir = f"{year}-12-{day}"
     output_file = f"{output_dir}/puzzle.txt"
-    os.makedirs(f"{output_dir}/tests", exist_ok=True)
+
+    # create day directory from template if it doesn't exist
+    if not os.path.exists(output_dir):
+        copy_tree("template", output_dir)
 
     if not os.path.exists(output_file):
         input_url = f"https://adventofcode.com/{year}/day/{day}/input"
