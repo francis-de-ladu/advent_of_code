@@ -1,0 +1,5 @@
+# exclude pycache directory
+/__pycache__/
+
+# exclude cookie file
+/cookie.json
