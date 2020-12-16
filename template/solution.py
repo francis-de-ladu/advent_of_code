@@ -1,8 +1,7 @@
 import os
 import sys
-from os.path import abspath, basename, dirname
-
-# from helpers import submit_solution
+from os.path import abspath, dirname
+from pathlib import Path
 
 
 def run_on_input(input_path, solution1=None, solution2=None):
@@ -11,7 +10,7 @@ def run_on_input(input_path, solution1=None, solution2=None):
     answer1 = part1()
     answer2 = part2()
 
-    print('\n' + basename(input_path).upper() + ':')
+    print('\n' + Path(input_path).stem.upper() + ':')
     print("Part1:", answer1)
     print("Part2:", answer2)
 
