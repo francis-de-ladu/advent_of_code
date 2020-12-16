@@ -6,6 +6,6 @@ My solutions to the 2020 edition of Advent of Code.
 
 Francis de Ladurantaye
 
-## More informations
+## More information
 
 https://adventofcode.com/about
