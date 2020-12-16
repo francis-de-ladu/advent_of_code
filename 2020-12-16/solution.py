@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -71,10 +72,13 @@ def part2(fields_dict, ticket, nearby):
 
 
 if __name__ == "__main__":
+    # get the directory where this file sits
+    directory = os.path.dirname(sys.argv[0]) or '.'
+
     # tests
-    for entry in os.scandir("tests"):
+    for entry in os.scandir(f"{directory}/tests"):
         run_on_input(entry.path)
 
     # puzzle
-    run_on_input("puzzle.txt")
+    run_on_input(f"{directory}/puzzle.txt")
     print()
