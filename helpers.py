@@ -36,18 +36,21 @@ def fetch_input(day, year):
             file.write(response.text)
 
 
-def submit_solution(year, day, answer, level):
-    # parts from which the url will be built
-    base_url = f"https://adventofcode.com/{year}/day/{day}/answer?"
-    query_params = f"level={level}&answer={answer}"
-
+def submit_solution(year, day, answer, part):
     # url where the answer will be sutmitted
-    answer_url = base_url + query_params
+    answer_url = f"https://adventofcode.com/{year}/day/{day}/answer"
+
+    # request headers and data
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    data = {'level': part, 'answer': answer}
 
     try:
         # send post request, raise on error
-        response = requests.post(url=answer_url, cookies=_get_cookie())
+        session = requests.Session()
+        response = session.post(
+            answer_url, cookies=_get_cookie(), headers=headers, data=data)
         response.raise_for_status()
+        print(response)
     except requests.HTTPError:
         exit({"status_code": response.status_code,
               "details": response.text})
