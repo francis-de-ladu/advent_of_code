@@ -6,6 +6,8 @@ import requests
 
 
 def _get_cookie(path="cookie.json"):
+    # the content of the cookie file should look like:
+    #     {"session": <your_cookie_as_string_here>}
     with open(path, 'r') as file:
         return json.load(file)
 
