@@ -59,8 +59,9 @@ if __name__ == "__main__":
 
     # run test puzzles
     dir_scanner = os.scandir(f"{directory}/tests")
-    for entry, sol1, sol2 in zip(dir_scanner, solutions1, solutions2):
-        run_on_input(entry.path, sol1, sol2)
+    test_paths = sorted([entry.path for entry in dir_scanner])
+    for path, sol1, sol2 in zip(test_paths, solutions1, solutions2):
+        run_on_input(path, sol1, sol2)
 
     # run on input puzzle
     answer1, answer2 = run_on_input(f"{directory}/puzzle.txt")
@@ -69,8 +70,8 @@ if __name__ == "__main__":
     # if you got here, all went well with tests, so submit solution
     year, _, day = directory.split('-')
     if answer2 is not None:
-        submit_solution(year, day, answer2, level=2)
+        submit_solution(year, day, answer2, part=2)
     elif answer1 is not None:
-        submit_solution(year, day, answer1, level=1)
+        submit_solution(year, day, answer1, part=1)
     else:
         print("There was no answer to submit...")
