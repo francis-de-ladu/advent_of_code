@@ -53,14 +53,13 @@ if __name__ == "__main__":
     if not directory:
         directory = os.path.split(dirname(abspath(file_path)))[1]
 
-    # test solutions
-    solutions1 = []
-    solutions2 = []
+    # test solutions (one tuple per test -> (part1, part2))
+    solutions = []
 
     # run test puzzles
     dir_scanner = os.scandir(f"{directory}/tests")
     test_paths = sorted([entry.path for entry in dir_scanner])
-    for path, sol1, sol2 in zip(test_paths, solutions1, solutions2):
+    for path, (sol1, sol2) in zip(test_paths, solutions):
         run_on_input(path, sol1, sol2)
 
     # run on input puzzle
