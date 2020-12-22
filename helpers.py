@@ -19,6 +19,7 @@ def fetch_input(day, year):
 
     # create day directory from template if it doesn't exist
     if not os.path.exists(output_dir):
+        os.makedirs("template/tests", exist_ok=True)
         copy_tree("template", output_dir)
 
     if not os.path.exists(output_file):
