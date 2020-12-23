@@ -229,6 +229,7 @@ def find_monster(image, monster, monster_value):
     for pos in product(*map(np.arange, image_shape - monster_shape)):
         pos = tuple(map(slice, pos, pos + monster_shape))
         if np.sum(np.clip(image[pos] & monster, 0, 1)) == monster_value:
+            # set monster locations in the image to value 3 (1 | 3 = 3)
             image[pos] = image[pos] | monster
 
 
