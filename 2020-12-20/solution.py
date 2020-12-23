@@ -16,20 +16,16 @@ class Tile(object):
         self.content = tile
 
     @property
-    def up(self):
-        return ''.join(self.content[0])
+    def up(self): return ''.join(self.content[0])
 
     @property
-    def down(self):
-        return ''.join(self.content[-1])
+    def down(self): return ''.join(self.content[-1])
 
     @property
-    def left(self):
-        return ''.join(self.content[:, 0])
+    def left(self): return ''.join(self.content[:, 0])
 
     @property
-    def right(self):
-        return ''.join(self.content[:, -1])
+    def right(self): return ''.join(self.content[:, -1])
 
     def flip(self, axis):
         self.content = np.flip(self.content, axis=axis)
@@ -54,8 +50,6 @@ class Tile(object):
 
     def get_sides(self, flipped=False, as_int=False):
         sides = [self.up, self.down, self.left, self.right]
-        # for side in ((0, ...), (-1, ...), (..., 0), (..., -1)):
-        #     sides.append(''.join(self.content[side]))
         if flipped is True:
             sides = [side[::-1] for side in sides]
         if as_int is True:
