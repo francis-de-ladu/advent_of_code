@@ -151,8 +151,8 @@ def part2(board):
 
     board_shape = np.asarray(list(board.shape))
     tile_shape = np.asarray(list(board[0, 0].content.shape))
-    true_board = np.full(board_shape * tile_shape, '')
 
+    true_board = np.full(board_shape * tile_shape, '')
     for i in range(board.shape[0]):
         for j in range(board.shape[1]):
             start = np.asarray([i, j]) * tile_shape
