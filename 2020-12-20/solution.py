@@ -126,16 +126,16 @@ def build_image(tiles, first_tile):
             # first tile has already been placed
             continue
 
-        if x == 0:
-            # we'll match with the tile right over it
-            prev_tile = image[y - 1, 0]
-            target = ''.join(prev_tile.content[-1])
-            side = (0, ...)
-        else:
+        if x != 0:
             # we'll match with the tile to its left
             prev_tile = image[y, x - 1]
-            target = ''.join(prev_tile.content[:, -1])
+            target = prev_tile.right
             side = (..., 0)
+        else:
+            # we'll match with the tile right over it
+            prev_tile = image[y - 1, 0]
+            target = prev_tile.down
+            side = (0, ...)
 
         # do until a new tile has been placed
         tile_placed = False
@@ -157,13 +157,13 @@ def build_image(tiles, first_tile):
                 if y == 0:
                     # first tile is in a wrong state, rotate it 180 degrees
                     image[0, 0].rotate(180)
-                    target = ''.join(prev_tile.content[:, -1])
+                    target = prev_tile.right
 
                 if y == 1:
                     # line 0 needs to be flipped vertically
                     for i in range(image_size):
                         image[0, i].flip(axis=0)
-                    target = ''.join(prev_tile.content[-1])
+                    target = prev_tile.down
 
     return image
 
