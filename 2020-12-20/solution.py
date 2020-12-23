@@ -180,6 +180,19 @@ def part2(board):
         find_monster(true_board, monster, monster_value)
         true_board = np.rot90(true_board)
 
+    # # print test in good direction
+    # true_board = np.rot90(true_board, 3)
+    # true_board = np.flip(true_board, axis=1)
+    # for line in true_board.astype(str):
+    #     print(''.join(line).replace('0', '.').replace(
+    #         '1', '#').replace('3', 'O'))
+
+    # # print puzzle in good direction
+    # true_board = np.flip(true_board, axis=1)
+    # for line in true_board.astype(str):
+    #     print(''.join(line).replace('0', '.').replace(
+    #         '1', '#').replace('3', 'O'))
+
     return np.sum(true_board == 1)
 
 
