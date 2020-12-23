@@ -15,39 +15,52 @@ class Tile(object):
         self.id = id
         self.content = tile
 
+    @property
+    def up(self):
+        return ''.join(self.content[0])
+
+    @property
+    def down(self):
+        return ''.join(self.content[-1])
+
+    @property
+    def left(self):
+        return ''.join(self.content[:, 0])
+
+    @property
+    def right(self):
+        return ''.join(self.content[:, -1])
+
     def flip(self, axis):
         self.content = np.flip(self.content, axis=axis)
 
     def rotate(self, degrees):
         self.content = np.rot90(self.content, degrees // 90)
 
-    def match_with(self, config, side):
+    def match_with(self, target, side):
         for _ in range(4):
-            if ''.join(self.content[side]) == config:
+            if ''.join(self.content[side]) == target:
                 return True
             self.rotate(90)
 
         self.flip(axis=1)
 
         for _ in range(4):
-            if ''.join(self.content[side]) == config:
+            if ''.join(self.content[side]) == target:
                 return True
             self.rotate(90)
 
         return False
 
     def get_sides(self, flipped=False, as_int=False):
-        sides = []
-        for side in ((0, ...), (-1, ...), (..., 0), (..., -1)):
-            sides.append(''.join(self.content[side]))
+        sides = [self.up, self.down, self.left, self.right]
+        # for side in ((0, ...), (-1, ...), (..., 0), (..., -1)):
+        #     sides.append(''.join(self.content[side]))
         if flipped is True:
             sides = [side[::-1] for side in sides]
         if as_int is True:
             sides = [int(side, 2) for side in sides]
         return sides
-
-    # def get_content(self):
-    #     return self.content[1:-1, 1:-1]
 
     def __repr__(self):
         return f"Tile {self.id}"
@@ -75,6 +88,7 @@ def part1(tiles):
     all_sides = defaultdict(list)
     for tile_id, sides in tile_sides.items():
         for side in sides:
+            # convert sides and flipped sides to int for easier comparison
             side_value = int(side, 2)
             side_flipped = int(side[::-1], 2)
             all_sides[side_value].append(tile_id)
@@ -83,133 +97,152 @@ def part1(tiles):
     side_tiles = defaultdict(list)
     for side, tile_ids in all_sides.items():
         if len(tile_ids) == 1:
+            # if a side only matches one tile, the tile is a side tile
             side_tiles[tile_ids[0]].append(side)
 
+    # corner tiles appear 4 times in `side_tiles`
+    # (two sides and their flipped counterpart)
     corner_tiles = set([tile_id for tile_id, sides in side_tiles.items()
                         if len(sides) == 4])
 
-    board = build_board(tiles, corner_tiles.pop())
+    # build image starting with a corner tile
+    image = build_image(tiles, corner_tiles.pop())
 
-    corners = board[(0, 0, -1, -1), (0, -1, 0, -1)]
+    corners = image[(0, 0, -1, -1), (0, -1, 0, -1)]
     answer = np.prod(list(map(lambda tile: tile.id, corners)))
 
-    return answer, board
+    return answer, image
 
 
-def build_board(tiles, first_tile):
-    board_length = np.sqrt(len(tiles)).astype(int)
-    board = np.full([board_length, board_length], None).astype(Tile)
+def build_image(tiles, first_tile):
+    image_size = np.sqrt(len(tiles)).astype(int)
+    image = np.full([image_size, image_size], None).astype(Tile)
 
-    board[0, 0] = tiles[first_tile]
+    image[0, 0] = tiles[first_tile]
     del tiles[first_tile]
 
-    for y, x in product(*map(range, board.shape)):
+    for y, x in product(*map(range, image.shape)):
         if (y, x) == (0, 0):
+            # first tile has already been placed
             continue
 
         if x == 0:
-            prev = board[y - 1, 0]
-            config = ''.join(prev.content[-1])
+            # we'll match with the tile right over it
+            prev_tile = image[y - 1, 0]
+            target = ''.join(prev_tile.content[-1])
             side = (0, ...)
         else:
-            prev = board[y, x - 1]
-            config = ''.join(prev.content[:, -1])
+            # we'll match with the tile to its left
+            prev_tile = image[y, x - 1]
+            target = ''.join(prev_tile.content[:, -1])
             side = (..., 0)
 
-        line_done = False
-        while not line_done:
+        # do until a new tile has been placed
+        tile_placed = False
+        while not tile_placed:
             for tile_id, tile in list(tiles.items()):
-                if not tile.match_with(config, side):
+                if not tile.match_with(target, side):
+                    # tile doesn't match, continue with next tile
                     continue
 
-                board[y, x] = tile
+                # match found! add to image and remove from unplaced tiles
+                image[y, x] = tile
                 del tiles[tile_id]
 
-                line_done = True
+                tile_placed = True
                 break
             else:
                 assert y in (0, 1)
 
                 if y == 0:
-                    # first tile has been placed in a wrong state
-                    board[0, 0].rotate(180)
-                    config = ''.join(prev.content[:, -1])
+                    # first tile is in a wrong state, rotate it 180 degrees
+                    image[0, 0].rotate(180)
+                    target = ''.join(prev_tile.content[:, -1])
 
                 if y == 1:
                     # line 0 needs to be flipped vertically
-                    for i in range(board_length):
-                        board[0, i].flip(axis=0)
-                    config = ''.join(prev.content[-1])
+                    for i in range(image_size):
+                        image[0, i].flip(axis=0)
+                    target = ''.join(prev_tile.content[-1])
 
-    return board
+    return image
 
 
-def part2(board):
-    for i in range(board.shape[0]):
-        for j in range(board.shape[1]):
-            board[i, j].content = board[i, j].content[1:-1, 1:-1]
+def part2(image):
+    # strip contour of every tile
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            image[i, j].content = image[i, j].content[1:-1, 1:-1]
 
-    board_shape = np.asarray(list(board.shape))
-    tile_shape = np.asarray(list(board[0, 0].content.shape))
+    image_shape = np.asarray(image.shape)
+    tile_shape = np.asarray(image[0, 0].content.shape)
 
-    true_board = np.full(board_shape * tile_shape, '')
-    for i in range(board.shape[0]):
-        for j in range(board.shape[1]):
-            start = np.asarray([i, j]) * tile_shape
-            end = np.asarray([i + 1, j + 1]) * tile_shape
-            true_board[start[0]:end[0], start[1]:end[1]] = board[i, j].content
+    true_image = np.full(image_shape * tile_shape, '')
+    for tile_pos in product(*map(np.arange, image.shape)):
+        # get slices to select the patch in the true image
+        pos_in_image = tile_pos * tile_shape
+        patch = map(slice, pos_in_image, pos_in_image + tile_shape)
 
-    true_board = true_board.astype(int)
+        # convert to tuples to allow use for indexing
+        patch, tile_pos = tuple(patch), tuple(tile_pos)
+
+        # replace patch by the tile content
+        true_image[patch] = image[tile_pos].content
+
+    # convert true image from string to int to allow easy comparison
+    true_image = true_image.astype(int)
 
     monster = ["                  # ",
                "#    ##    ##    ###",
                " #  #  #  #  #  #   "]
 
+    # convert monster from string to int to allow easy comparison (3 has been
+    # chosen to allow comparison with 1s in the image using binary operators)
     monster = np.vstack([list(line.replace(' ', '0').replace('#', '3'))
                          for line in monster]).astype(int)
 
+    # number of '#' in the mosnter
     monster_value = np.sum(monster) // 3
 
     for _ in range(4):
-        find_monster(true_board, monster, monster_value)
-        true_board = np.rot90(true_board)
+        find_monster(true_image, monster, monster_value)
+        true_image = np.rot90(true_image)
 
-    true_board = np.flip(true_board, axis=1)
+    true_image = np.flip(true_image, axis=1)
 
     for _ in range(4):
-        find_monster(true_board, monster, monster_value)
-        true_board = np.rot90(true_board)
+        find_monster(true_image, monster, monster_value)
+        true_image = np.rot90(true_image)
 
     # # print test in good direction
-    # true_board = np.rot90(true_board, 3)
-    # true_board = np.flip(true_board, axis=1)
-    # for line in true_board.astype(str):
+    # true_image = np.rot90(true_image, 3)
+    # true_image = np.flip(true_image, axis=1)
+    # for line in true_image.astype(str):
     #     print(''.join(line).replace('0', '.').replace(
     #         '1', '#').replace('3', 'O'))
 
     # # print puzzle in good direction
-    # true_board = np.flip(true_board, axis=1)
-    # for line in true_board.astype(str):
+    # true_image = np.flip(true_image, axis=1)
+    # for line in true_image.astype(str):
     #     print(''.join(line).replace('0', '.').replace(
     #         '1', '#').replace('3', 'O'))
 
-    return np.sum(true_board == 1)
+    return np.sum(true_image == 1)
 
 
-def find_monster(board, monster, monster_value):
-    for i in range(board.shape[0] - monster.shape[0]):
-        for j in range(board.shape[1] - monster.shape[1]):
-            pos = tuple([slice(i, i + monster.shape[0]),
-                         slice(j, j + monster.shape[1])])
-            if np.sum(np.clip(board[pos] & monster, 0, 1)) == monster_value:
-                board[pos] = board[pos] | monster
+def find_monster(image, monster, monster_value):
+    image_shape, monster_shape = map(np.asarray, [image.shape, monster.shape])
+    for pos in product(*map(np.arange, image_shape - monster_shape)):
+        pos = tuple(map(slice, pos, pos + monster_shape))
+        if np.sum(np.clip(image[pos] & monster, 0, 1)) == monster_value:
+            image[pos] = image[pos] | monster
 
 
 def run_on_input(input_path, solution1=None, solution2=None):
     tiles = prepare_input(input_path)
 
-    answer1, board = part1(tiles)
-    answer2 = part2(board)
+    answer1, image = part1(tiles)
+    answer2 = part2(image)
 
     print('\n' + Path(input_path).stem.upper() + ':')
     print("Part1:", answer1)
