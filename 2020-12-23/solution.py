@@ -100,7 +100,6 @@ def run_on_input(input_path, solution1=None, solution2=None):
     cups, current = prepare_input(input_path)
 
     answer1 = part1(copy.deepcopy(cups), current, num_moves=100)
-    print(answer1)
     answer2 = part2(copy.deepcopy(cups), current, num_moves=10000000)
 
     print('\n' + Path(input_path).stem.upper() + ':')
