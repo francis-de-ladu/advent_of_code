@@ -17,11 +17,6 @@ def fetch_input(day, year):
     output_dir = f"{year}-12-{day}"
     output_file = f"{output_dir}/puzzle.txt"
 
-    # create day directory from template if it doesn't exist
-    if not os.path.exists(output_dir):
-        os.makedirs("template/tests", exist_ok=True)
-        copy_tree("template", output_dir)
-
     if not os.path.exists(output_file):
         # url where to get the input
         input_url = f"https://adventofcode.com/{year}/day/{day}/input"
@@ -30,9 +25,16 @@ def fetch_input(day, year):
             # send get request, raise on error
             response = requests.get(url=input_url, cookies=_get_cookie())
             response.raise_for_status()
+
         except requests.HTTPError:
+            # display error and exit
             exit({"status_code": response.status_code,
                   "details": response.text})
+
+        # create day directory from template if it doesn't exist
+        if not os.path.exists(output_dir):
+            os.makedirs("template/tests", exist_ok=True)
+            copy_tree("template", output_dir)
 
         # save input puzzle to file
         with open(output_file, 'w') as file:
