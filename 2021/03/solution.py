@@ -1,17 +1,11 @@
 import os
 import sys
-from os.path import abspath, dirname
-from pathlib import Path
 
 import numpy as np
 
 
-def prepare_input(input_path):
-    with open(input_path, 'r') as file:
-        puzzle = file.read().splitlines()
-        puzzle = np.stack([list(entry) for entry in puzzle], axis=0)
-
-    return puzzle.astype(int)
+def transform(puzzle):
+    return np.stack([list(entry) for entry in puzzle], axis=0).astype(int)
 
 
 def part1(bits):
@@ -45,58 +39,30 @@ def part2(bits):
     return oxy_rating * co2_rating
 
 
-def run_on_input(input_path, solution1=None, solution2=None):
-    bits = prepare_input(input_path)
-
-    answer1 = part1(bits)
-    answer2 = part2(bits)
-
-    print('\n' + Path(input_path).stem.upper() + ':')
-    print("Part1:", answer1)
-    print("Part2:", answer2)
-
-    if answer1 is not None:
-        assert solution1 is None or answer1 == solution1, \
-            f"got answer {answer1} for part 1, but was expeting {solution1}"
-
-    if answer1 is not None and answer2 is not None:
-        assert solution2 is None or answer2 == solution2, \
-            f"got answer {answer2} for part 2, but was expeting {solution2}"
-
-    return answer1, answer2
-
-
 if __name__ == "__main__":
-    # need to add parent directory to path before importing from helpers
-    sys.path.insert(1, os.path.join(sys.path[0], '..'))
-    from helpers import submit_solution
+    # add grandparent directory to path to allow importing `run_everything`
+    sys.path.insert(1, os.path.join(sys.path[0], '../..'))
+    from utils import run_everything
 
-    # get path used to come here
-    file_path = sys.argv[0]
+    # keyword arguments to part1 and part2 functions
+    p1_kwargs = dict()
+    p2_kwargs = dict()
 
-    # get name of the directory where this file sits
-    directory = os.path.split(dirname(file_path))[1]
-    if not directory:
-        directory = os.path.split(dirname(abspath(file_path)))[1]
+    # solutions to examples given for validation
+    p1_solutions = [198]
+    p2_solutions = [230]
 
-    # test solutions (one tuple per test -> (part1, part2))
-    solutions = [(198, 230)]
+    # keyword arguments of the `run_everything` function
+    kwargs = dict(
+        transform=transform,
+        part1=part1,
+        part2=part2,
+        p1_kwargs=p1_kwargs,
+        p2_kwargs=p2_kwargs,
+        p1_solutions=p1_solutions,
+        p2_solutions=p2_solutions,
+        verbose=False
+    )
 
-    # run test puzzles
-    dir_scanner = os.scandir(f"{directory}/tests")
-    test_paths = sorted([entry.path for entry in dir_scanner])
-    for path, (sol1, sol2) in zip(test_paths, solutions):
-        run_on_input(path, sol1, sol2)
-
-    # run on input puzzle
-    answer1, answer2 = run_on_input(f"{directory}/puzzle.txt")
-    print()
-
-    # if you got here, all went well with tests, so submit solution
-    year, _, day = map(int, directory.split('-'))
-    if answer2 is not None:
-        submit_solution(year, day, answer2, part=2)
-    elif answer1 is not None:
-        submit_solution(year, day, answer1, part=1)
-    else:
-        print("There was no answer to submit...")
+    # load puzzle, run tests, attempt submission
+    run_everything(**kwargs)
