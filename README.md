@@ -1,6 +1,6 @@
-# advent_of_code_2020
+# advent_of_code
 
-My solutions to the 2020 edition of Advent of Code.
+My solutions to the 2020-2021 editions of Advent of Code.
 
 ## Author
 
