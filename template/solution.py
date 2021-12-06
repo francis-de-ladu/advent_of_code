@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     # solutions to examples given for validation
     test_solutions = [
-        (None, None),
+        (False, False),
     ]
 
     # keyword arguments of the `run_everything` function
