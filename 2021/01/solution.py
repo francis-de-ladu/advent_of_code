@@ -29,8 +29,9 @@ if __name__ == "__main__":
     p2_kwargs = dict()
 
     # solutions to examples given for validation
-    p1_solutions = [7]
-    p2_solutions = [5]
+    test_solutions = [
+        (7, 5),
+    ]
 
     # keyword arguments of the `run_everything` function
     kwargs = dict(
@@ -39,8 +40,7 @@ if __name__ == "__main__":
         part2=part2,
         p1_kwargs=p1_kwargs,
         p2_kwargs=p2_kwargs,
-        p1_solutions=p1_solutions,
-        p2_solutions=p2_solutions,
+        test_solutions=test_solutions,
         verbose=False
     )
 

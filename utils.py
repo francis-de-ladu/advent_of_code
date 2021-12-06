@@ -20,11 +20,13 @@ def get_puzzle_data(input_path, transform, verbose=False):
     if verbose:
         print("Puzzle:")
         print(puzzle)
+        print()
 
     transformed = transform(puzzle)
     if verbose:
-        print("\nTransformed:")
+        print("Transformed:")
         print(transformed)
+        print()
 
     return transformed
 
@@ -83,14 +85,14 @@ def submit_solution(year, day, answer, part):
               "details": response.text})
 
 
-def run_everything(p1_solutions, p2_solutions, **kwargs):
+def run_everything(test_solutions, **kwargs):
     # retrieve parent directory of the file lauched from command line
     directory = Path(sys.argv[0]).parent
 
     # run tests and exit with error if validation fails
     dir_scanner = os.scandir(f"{directory}/tests")
     test_paths = sorted([entry.path for entry in dir_scanner])
-    for path, sol1, sol2 in zip(test_paths, p1_solutions, p2_solutions):
+    for path, (sol1, sol2) in zip(test_paths, test_solutions):
         run_on_input(path, solution1=sol1, solution2=sol2, **kwargs)
 
     # run with puzzle data
