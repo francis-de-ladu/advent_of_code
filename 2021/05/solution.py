@@ -14,16 +14,10 @@ class Line():
         elif isinstance(self.y_range, int):
             self.y_range = list(repeat(self.y_range, len(self.x_range)))
 
-    def get_delta(self, attr):
-        return getattr(self.p2, attr) - getattr(self.p1, attr)
-
-    def get_step(self, attr):
-        delta = self.get_delta(attr)
-        return delta // abs(delta) if delta else 0
-
     def get_range(self, attr):
-        step = self.get_step(attr)
         p1, p2 = getattr(self.p1, attr), getattr(self.p2, attr)
+        delta = p2 - p1
+        step = delta // abs(delta) if delta else 0
         return list(range(p1, p2 + step, step)) if step else p1
 
     def is_straight(self):
