@@ -1,5 +1,6 @@
 import os
 import sys
+from collections import defaultdict
 
 import numpy as np
 
@@ -22,7 +23,7 @@ class Line():
 
         if x_len > 1 and y_len == 1:
             self.y_range = x_len * self.y_range
-        elif y_len > 1 and y_len == 1:
+        elif y_len > 1 and x_len == 1:
             self.x_range = y_len * self.x_range
 
     def is_diagonal(self):
@@ -45,25 +46,21 @@ def transform(puzzle):
 
 
 def part1(data):
-    x_max = max(line.x_max for line in data) + 1
-    y_max = max(line.y_max for line in data) + 1
-    ocean_floor = np.zeros([y_max, x_max])
-
+    ocean_floor = defaultdict(int)
     for line in filter(lambda l: not l.is_diagonal(), data):
-        ocean_floor[line.y_range, line.x_range] += 1
+        for coord in zip(line.y_range, line.x_range):
+            ocean_floor[coord] += 1
 
-    return np.sum(ocean_floor > 1)
+    return len(list(filter(lambda pos: pos > 1, ocean_floor.values())))
 
 
 def part2(data):
-    x_max = max(line.x_max for line in data) + 1
-    y_max = max(line.y_max for line in data) + 1
-    ocean_floor = np.zeros([y_max, x_max])
-
+    ocean_floor = defaultdict(int)
     for line in data:
-        ocean_floor[line.y_range, line.x_range] += 1
+        for coord in zip(line.y_range, line.x_range):
+            ocean_floor[coord] += 1
 
-    return np.sum(ocean_floor > 1)
+    return len(list(filter(lambda pos: pos > 1, ocean_floor.values())))
 
 
 if __name__ == "__main__":
