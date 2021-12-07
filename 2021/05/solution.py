@@ -1,33 +1,33 @@
 import os
 import sys
 from collections import defaultdict
-
-import numpy as np
-
-
-def get_range(line, attr):
-    start, end = getattr(line.p1, attr), getattr(line.p2, attr)
-    delta = end - start
-    step = delta // abs(delta) if delta != 0 else 1
-    return list(range(start, end + step, step))
+from itertools import repeat
 
 
 class Line():
     def __init__(self, entry):
         self.p1, self.p2 = map(Point, entry.split(' -> '))
-        self.x_max = max(self.p1.x, self.p2.x)
-        self.y_max = max(self.p1.y, self.p2.y)
 
-        self.x_range, self.y_range = get_range(self, 'x'), get_range(self, 'y')
-        x_len, y_len = len(self.x_range), len(self.y_range)
+        self.x_range, self.y_range = self.get_range('x'), self.get_range('y')
+        if isinstance(self.x_range, int):
+            self.x_range = list(repeat(self.x_range, len(self.y_range)))
+        elif isinstance(self.y_range, int):
+            self.y_range = list(repeat(self.y_range, len(self.x_range)))
 
-        if x_len > 1 and y_len == 1:
-            self.y_range = x_len * self.y_range
-        elif y_len > 1 and x_len == 1:
-            self.x_range = y_len * self.x_range
+    def get_delta(self, attr):
+        return getattr(self.p2, attr) - getattr(self.p1, attr)
 
-    def is_diagonal(self):
-        return self.p1.x != self.p2.x and self.p1.y != self.p2.y
+    def get_step(self, attr):
+        delta = self.get_delta(attr)
+        return delta // abs(delta) if delta else 0
+
+    def get_range(self, attr):
+        step = self.get_step(attr)
+        p1, p2 = getattr(self.p1, attr), getattr(self.p2, attr)
+        return list(range(p1, p2 + step, step)) if step else p1
+
+    def is_straight(self):
+        return self.p1.x == self.p2.x or self.p1.y == self.p2.y
 
     def __str__(self):
         return f'{self.p1} -> {self.p2}'
@@ -47,8 +47,8 @@ def transform(puzzle):
 
 def part1(data):
     ocean_floor = defaultdict(int)
-    for line in filter(lambda l: not l.is_diagonal(), data):
-        for coord in zip(line.y_range, line.x_range):
+    for line in filter(lambda l: l.is_straight(), data):
+        for coord in zip(line.x_range, line.y_range):
             ocean_floor[coord] += 1
 
     return len(list(filter(lambda pos: pos > 1, ocean_floor.values())))
@@ -57,7 +57,7 @@ def part1(data):
 def part2(data):
     ocean_floor = defaultdict(int)
     for line in data:
-        for coord in zip(line.y_range, line.x_range):
+        for coord in zip(line.x_range, line.y_range):
             ocean_floor[coord] += 1
 
     return len(list(filter(lambda pos: pos > 1, ocean_floor.values())))
