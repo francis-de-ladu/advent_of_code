@@ -8,9 +8,8 @@ def transform(puzzle):
     return np.asarray(list(map(int, puzzle[0].split(','))))
 
 
-def compute_fuel(data, round_mean):
-    mean = np.mean(data)
-    dist = np.abs(data - round_mean(mean)).astype(int)
+def compute_fuel(data, mean):
+    dist = np.abs(data - mean).astype(int)
     return np.sum(dist * (dist + 1) // 2)
 
 
@@ -20,8 +19,9 @@ def part1(data):
 
 
 def part2(data):
-    fuel_floor = compute_fuel(data, np.floor)
-    fuel_ceil = compute_fuel(data, np.ceil)
+    mean = np.mean(data)
+    fuel_floor = compute_fuel(data, np.floor(mean))
+    fuel_ceil = compute_fuel(data, np.ceil(mean))
     return fuel_floor if fuel_floor < fuel_ceil else fuel_ceil
 
 
