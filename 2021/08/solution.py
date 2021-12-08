@@ -2,10 +2,15 @@ import os
 import sys
 
 
+def transform(puzzle):
+    return [Entry(entry) for entry in puzzle]
+
+
 class Entry():
     def __init__(self, entry):
         entry = entry.replace(' | ', ' ')
         patterns = [frozenset(p) for p in entry.split()]
+        # simplify future lookups by sorting easy and hard patterns by lengths
         self.easy = sorted(list(filter(is_easy, patterns[:10])), key=len)
         self.hard = sorted(list(filter(is_hard, patterns[:10])), key=len)
         self.output = patterns[10:]
@@ -19,20 +24,11 @@ def is_hard(pattern):
     return not is_easy(pattern)
 
 
-def get_supersets(entry, mapping, digit):
-    matches = [p for p in entry.to_map if p.issuperset(mapping[digit])]
+def get_matches(entry, mapping, digit, condition):
+    matches = [p for p in entry.to_map if condition(p, mapping[digit])]
+    # remove matches from patterns left to map
     entry.to_map = [p for p in entry.to_map if p not in matches]
     return matches
-
-
-def get_subsets(entry, mapping, digit):
-    matches = [p for p in entry.to_map if p.issubset(mapping[digit])]
-    entry.to_map = [p for p in entry.to_map if p not in matches]
-    return matches
-
-
-def transform(puzzle):
-    return [Entry(entry) for entry in puzzle]
 
 
 def part1(data):
@@ -48,11 +44,11 @@ def part2(data):
         mapping = dict(zip([1, 7, 4, 8], entry.easy))
         entry.to_map = entry.hard
 
-        mapping[9], = get_supersets(entry, mapping, 4)
-        mapping[3], mapping[0] = get_supersets(entry, mapping, 7)
+        mapping[9], = get_matches(entry, mapping, 4, set.issuperset)
+        mapping[3], mapping[0] = get_matches(entry, mapping, 7, set.issuperset)
 
-        mapping[5], = get_subsets(entry, mapping, 9)
-        mapping[6], = get_supersets(entry, mapping, 5)
+        mapping[5], = get_matches(entry, mapping, 9, set.issubset)
+        mapping[6], = get_matches(entry, mapping, 5, set.issuperset)
 
         mapping[2] = entry.to_map.pop()
 
