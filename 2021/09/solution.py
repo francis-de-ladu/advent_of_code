@@ -23,7 +23,7 @@ def get_lowest_locations(data):
 def explore(data, coords, seen=None):
     seen = set() if seen is None else seen
     if coords in seen or data[coords] == 9:
-        return seen
+        return
 
     seen.add(coords)
 
