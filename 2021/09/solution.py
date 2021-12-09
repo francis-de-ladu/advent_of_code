@@ -29,13 +29,13 @@ def explore(data, coords, seen=None):
 
     x, y = coords
     if x > 0:
-        seen = explore(data, (x - 1, y), seen)
+        explore(data, (x - 1, y), seen)
     if y > 0:
-        seen = explore(data, (x, y - 1), seen)
+        explore(data, (x, y - 1), seen)
     if x < data.shape[0] - 1:
-        seen = explore(data, (x + 1, y), seen)
+        explore(data, (x + 1, y), seen)
     if y < data.shape[1] - 1:
-        seen = explore(data, (x, y + 1), seen)
+        explore(data, (x, y + 1), seen)
 
     return seen
 
