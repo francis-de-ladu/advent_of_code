@@ -23,7 +23,7 @@ def get_lowest_locations(data):
     lowest_locations = []
     for coords in product(*map(range, data.shape)):
         neighbors = get_neighbors(coords, data.shape)
-        if data[coords] < np.min(data[list(zip(*neighbors))]):
+        if data[coords] < np.min(data[tuple(zip(*neighbors))]):
             lowest_locations.append(coords)
     return lowest_locations
 
@@ -43,7 +43,7 @@ def explore(data, coords, seen=None):
 
 def part1(data):
     lowest_locations = get_lowest_locations(data)
-    lowest_points = data[list(zip(*lowest_locations))]
+    lowest_points = data[tuple(zip(*lowest_locations))]
     return np.sum(lowest_points) + len(lowest_points)
 
 
