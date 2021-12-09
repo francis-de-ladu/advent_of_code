@@ -10,13 +10,21 @@ def transform(puzzle):
     return np.stack([list(map(int, line)) for line in puzzle], axis=0)
 
 
+def get_neighbors(coords, dims):
+    neighbors = []
+    for dx, dy in ((-1, 0), (0, -1), (1, 0), (0, 1)):
+        x, y = coords[0] + dx, coords[1] + dy
+        if 0 <= x < dims[0] and 0 <= y < dims[1]:
+            neighbors.append((x, y))
+    return neighbors
+
+
 def get_lowest_locations(data):
     lowest_locations = []
-    for ii, jj in product(*map(range, data.shape)):
-        i, iii = max(0, ii - 1), ii + 1
-        j, jjj = max(0, jj - 1), jj + 1
-        if np.amin(data[i:iii + 1, j:jjj + 1]) == data[ii, jj]:
-            lowest_locations.append((ii, jj))
+    for coords in product(*map(range, data.shape)):
+        neighbors = get_neighbors(coords, data.shape)
+        if data[coords] < np.min(data[list(zip(*neighbors))]):
+            lowest_locations.append(coords)
     return lowest_locations
 
 
@@ -27,15 +35,8 @@ def explore(data, coords, seen=None):
 
     seen.add(coords)
 
-    x, y = coords
-    if x > 0:
-        explore(data, (x - 1, y), seen)
-    if y > 0:
-        explore(data, (x, y - 1), seen)
-    if x < data.shape[0] - 1:
-        explore(data, (x + 1, y), seen)
-    if y < data.shape[1] - 1:
-        explore(data, (x, y + 1), seen)
+    for neighbor in get_neighbors(coords, data.shape):
+        explore(data, neighbor, seen)
 
     return seen
 
