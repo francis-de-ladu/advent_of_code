@@ -37,8 +37,6 @@ def explore(data, coords, seen=None):
     if y < data.shape[1] - 1:
         explore(data, (x, y + 1), seen)
 
-    return seen
-
 
 def part1(data):
     lowest_locations = get_lowest_locations(data)
