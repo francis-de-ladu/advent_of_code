@@ -23,19 +23,21 @@ def get_lowest_locations(data):
 def explore(data, coords, seen=None):
     seen = set() if seen is None else seen
     if coords in seen or data[coords] == 9:
-        return
+        return seen
 
     seen.add(coords)
 
     x, y = coords
     if x > 0:
-        explore(data, (x - 1, y), seen)
+        seen = explore(data, (x - 1, y), seen)
     if y > 0:
-        explore(data, (x, y - 1), seen)
+        seen = explore(data, (x, y - 1), seen)
     if x < data.shape[0] - 1:
-        explore(data, (x + 1, y), seen)
+        seen = explore(data, (x + 1, y), seen)
     if y < data.shape[1] - 1:
-        explore(data, (x, y + 1), seen)
+        seen = explore(data, (x, y + 1), seen)
+
+    return seen
 
 
 def part1(data):
@@ -49,10 +51,11 @@ def part2(data, num_largest=3):
 
     basins = []
     for coords in lowest_locations:
-        basins.append(explore(data, coords))
+        basin = explore(data, coords)
+        basins.append(basin)
 
-    largest_basins = sorted(basins, key=len, reverse=True)[:num_largest]
-    return math.prod(map(len, largest_basins))
+    largest_basins = sorted(basins, key=len, reverse=True)
+    return math.prod(map(len, largest_basins[:num_largest]))
 
 
 if __name__ == "__main__":
