@@ -44,14 +44,13 @@ def part1(data):
     return np.sum(lowest_points) + len(lowest_points)
 
 
-def part2(data):
+def part2(data, num_largest=3):
     lowest_locations = get_lowest_locations(data)
 
     basins = []
     for coords in lowest_locations:
         basins.append(explore(data, coords))
 
-    num_largest = 3
     largest_basins = sorted(basins, key=len, reverse=True)[:num_largest]
     return math.prod(map(len, largest_basins))
 
