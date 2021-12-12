@@ -9,7 +9,7 @@ def transform(puzzle):
     return np.asarray(octopuses)
 
 
-def get_square(pos):
+def get_square_slice(pos):
     return map(lambda p: slice(max(0, p - 1), p + 2), pos)
 
 
@@ -24,7 +24,7 @@ def part1(octopuses, full_flash=False):
         to_flash = np.argwhere((octopuses > 9) & ~flashed)
 
         while to_flash.size:
-            for square in map(get_square, to_flash):
+            for square in map(get_square_slice, to_flash):
                 octopuses[tuple(square)] += 1
 
             flashed[tuple(zip(*to_flash))] = 1
