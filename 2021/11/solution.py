@@ -16,6 +16,7 @@ def get_square_slice(pos):
 def part1(octopuses, full_flash=False):
     flash_cnt = 0
     num_steps = int(1e10) if full_flash else 100
+    octopuses = octopuses.copy()
 
     for step in range(1, num_steps + 1):
         flashed = np.zeros_like(octopuses).astype(bool)
@@ -34,7 +35,7 @@ def part1(octopuses, full_flash=False):
         flash_cnt += np.sum(flashed)
 
         if full_flash and np.all(flashed):
-            return step + 1
+            return step
 
     return flash_cnt
 
