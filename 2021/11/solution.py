@@ -18,7 +18,7 @@ def part1(octopuses, full_flash=False):
     num_steps = int(1e10) if full_flash else 100
 
     for step in range(1, num_steps + 1):
-        flashed = np.zeros_like(octopuses)
+        flashed = np.zeros_like(octopuses).astype(bool)
         octopuses += 1
 
         to_flash = np.argwhere((octopuses > 9) & ~flashed)
@@ -27,7 +27,7 @@ def part1(octopuses, full_flash=False):
             for square in map(get_square_slice, to_flash):
                 octopuses[tuple(square)] += 1
 
-            flashed[tuple(zip(*to_flash))] = 1
+            flashed[tuple(zip(*to_flash))] = True
             to_flash = np.argwhere((octopuses > 9) & ~flashed)
 
         octopuses = np.where(octopuses > 9, 0, octopuses)
