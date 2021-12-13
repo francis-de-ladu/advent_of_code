@@ -18,7 +18,7 @@ def transform(puzzle):
 def fold_paper(dots, instr):
     axis, pos = int(instr[0] == 'fold along y'), int(instr[1])
     dots[:, axis] = np.where(dots[:, axis] > pos,
-                             pos - (dots[:, axis] - pos),
+                             dots[:, axis] - 2 * (dots[:, axis] - pos),
                              dots[:, axis])
 
     return np.unique(dots, axis=0)
