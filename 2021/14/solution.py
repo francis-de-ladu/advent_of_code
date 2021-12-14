@@ -23,19 +23,19 @@ def part1(data, num_iters=10):
     # for each iteration in num_iters, compute new pattern counts
     for _ in range(num_iters):
         new_patterns = defaultdict(int)
-        for (a, b), cnt in patterns.items():
-            insertion = rules[a + b]
-            new_patterns[a + insertion] += cnt
-            new_patterns[insertion + b] += cnt
+        for (elem1, elem2), cnt in patterns.items():
+            insertion = rules[elem1, elem2]
+            new_patterns[elem1 + insertion] += cnt
+            new_patterns[insertion + elem2] += cnt
 
         # replace old pattern dict with new pattern dict
         patterns = new_patterns
 
     # compute element counts from pattern counts (will be twice the true count)
     counts = defaultdict(int)
-    for pattern, cnt in patterns.items():
-        counts[pattern[0]] += cnt
-        counts[pattern[1]] += cnt
+    for (elem1, elem2), cnt in patterns.items():
+        counts[elem1] += cnt
+        counts[elem2] += cnt
 
     # first and last elements of template have only been counted once
     counts[template[0]] += 1
