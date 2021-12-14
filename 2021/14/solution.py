@@ -1,9 +1,6 @@
 import os
 import sys
 from collections import defaultdict
-from operator import add, itemgetter
-
-import numpy as np
 
 
 def transform(puzzle):
