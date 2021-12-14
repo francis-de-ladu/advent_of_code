@@ -23,11 +23,10 @@ def part1(data, num_iters=10):
     # for each iteration in num_iters, compute new pattern counts
     for _ in range(num_iters):
         new_patterns = defaultdict(int)
-        for pattern, cnt in patterns.items():
-            pair1 = pattern[0] + rules[pattern]
-            pair2 = rules[pattern] + pattern[1]
-            new_patterns[pair1] += cnt
-            new_patterns[pair2] += cnt
+        for (a, b), cnt in patterns.items():
+            insertion = rules[a + b]
+            new_patterns[a + insertion] += cnt
+            new_patterns[insertion + b] += cnt
 
         # replace old pattern dict with new pattern dict
         patterns = new_patterns
