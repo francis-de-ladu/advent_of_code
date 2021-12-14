@@ -24,7 +24,7 @@ def part1(data, num_iters=10):
     for _ in range(num_iters):
         new_patterns = defaultdict(int)
         for (elem1, elem2), cnt in patterns.items():
-            insertion = rules[elem1, elem2]
+            insertion = rules[elem1 + elem2]
             new_patterns[elem1 + insertion] += cnt
             new_patterns[insertion + elem2] += cnt
 
@@ -41,10 +41,7 @@ def part1(data, num_iters=10):
     counts[template[0]] += 1
     counts[template[-1]] += 1
 
-    # sort elements by reverse counts, then return most common minus least
-    # common divided by 2 since elements have been counted twice
-    sorted_elems = sorted(counts.items(), key=itemgetter(1), reverse=True)
-    return (sorted_elems[0][1] - sorted_elems[-1][1]) // 2
+    return (max(counts.values()) - min(counts.values())) // 2
 
 
 if __name__ == "__main__":
