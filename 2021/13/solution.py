@@ -36,7 +36,7 @@ def part2(data):
         dots = fold_paper(dots, instr)
 
     folded_paper = np.ndarray(np.max(dots, axis=0) + 1).astype(str)
-    folded_paper.fill('.')
+    folded_paper.fill(' ')
     folded_paper[tuple(zip(*dots))] = '#'
     folded_paper = folded_paper.T
 
