@@ -1,6 +1,7 @@
 import os
 import sys
 from collections import defaultdict
+from operator import itemgetter
 
 
 def transform(puzzle):
