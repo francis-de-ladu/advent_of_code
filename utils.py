@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -85,15 +86,21 @@ def submit_solution(year, day, answer, part):
               "details": response.text})
 
 
-def run_everything(test_solutions, **kwargs):
+def numerically_sorted(path_entries):
+    sorted_entries = sorted(
+        path_entries, key=lambda ent: int(re.search(r'\d+', ent.name).group()))
+    return [entry.path for entry in sorted_entries]
+
+
+def run_everything(test_solutions, submit=True, **kwargs):
     # retrieve parent directory of the file lauched from command line
     directory = Path(sys.argv[0]).parent
 
     # run tests and exit with error if validation fails
     dir_scanner = os.scandir(f"{directory}/tests")
-    test_paths = sorted([entry.path for entry in dir_scanner])
+    test_paths = numerically_sorted([entry for entry in dir_scanner])
     for path, (sol1, sol2) in zip(test_paths, test_solutions):
         run_on_input(path, solution1=sol1, solution2=sol2, **kwargs)
 
     # run with puzzle data
-    run_on_input(f"{directory}/puzzle.txt", submit=True, **kwargs)
+    run_on_input(f"{directory}/puzzle.txt", submit=submit, **kwargs)
