@@ -38,7 +38,8 @@ if __name__ == "__main__":
         p1_kwargs=p1_kwargs,
         p2_kwargs=p2_kwargs,
         test_solutions=test_solutions,
-        verbose=False
+        submit=True,
+        verbose=False,
     )
 
     # load puzzle, run tests, attempt submission
