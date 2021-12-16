@@ -17,15 +17,13 @@ def get_risk_at(risk_map, pos):
 
 
 def get_neighbors(pos, pos_risk, risk_map, max_x, max_y):
-    x, y = pos
     neighbors = []
-    for xx, yy in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
-        if 0 <= xx < max_x and 0 <= yy < max_y:
-            neighbors.append((xx, yy))
+    for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        x, y = pos[0] - dx, pos[1] - dy
+        if 0 <= x < max_x and 0 <= y < max_y:
+            neighbors.append((x, y))
 
-    risks = [pos_risk + get_risk_at(risk_map, neigh)
-             for neigh in neighbors]
-
+    risks = [pos_risk + get_risk_at(risk_map, neigh) for neigh in neighbors]
     return neighbors, risks
 
 
