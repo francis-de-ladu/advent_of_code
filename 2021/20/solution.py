@@ -7,46 +7,36 @@ import numpy as np
 
 def transform(puzzle):
     ie_alg = np.asarray(list(puzzle[0]))
+    ie_alg = np.where(ie_alg == '#', '1', '0')
     input_img = np.asarray([list(line) for line in puzzle[2:]])
+    input_img = np.where(input_img == '#', '1', '0')
     return ie_alg, input_img
 
 
 def part1(data, num_steps=2):
     ie_alg, grid = data
-    is_flashing = ie_alg[0] == '#' and ie_alg[1] == '.'
+    out_char = '0'
+    deltas = list(product(range(-1, 2), repeat=2))
 
     for step in range(num_steps):
         # new grid size is two more in each axis
         new_grid = np.zeros(np.asarray(grid.shape) + 2).astype(str)
 
-        for x_new, y_new in product(*map(range, new_grid.shape)):
-            # shift coords in new grid to get associated coords in old grid
-            x_old, y_old = x_new - 1, y_new - 1
-
+        # ranges from -1 to shape-1, -1 will be mapped to last index of axis
+        for pos in product(*map(lambda s: range(-1, s - 1), new_grid.shape)):
             binary = ''
-            for dx, dy in product(range(-1, 2), repeat=2):
-                # compute pos with deltas
-                pos_x, pos_y = x_old + dx, y_old + dy
+            for x, y in map(lambda d: (pos[0] + d[0], pos[1] + d[1]), deltas):
+                in_grid = (0 <= x < grid.shape[0]) and (0 <= y < grid.shape[1])
+                binary += grid[x, y] if in_grid else out_char
+            new_grid[pos] = ie_alg[int(binary, 2)]
 
-                # if pos is within limits, get value from grid,
-                # else compute value from idx 0 and 511 of the algorithm
-                if 0 <= pos_x < grid.shape[0] and 0 <= pos_y < grid.shape[1]:
-                    binary += '1' if grid[pos_x, pos_y] == '#' else '0'
-                elif ie_alg[0] == '#':
-                    if is_flashing:
-                        binary += '0' if step % 2 == 0 else '1'
-                    else:
-                        binary += '1'
-                else:
-                    binary += '0'
+        # roll by 1 in all axes to map indices -1 to shape-2 to 0 to shape-1
+        grid = np.roll(new_grid, 1, axis=(0, 1))
 
-            # add value to new grid
-            new_grid[x_new, y_new] = ie_alg[int(binary, 2)]
+        # update out of grid character
+        out_char = ie_alg[0] if out_char == '0' else ie_alg[-1]
 
-        # new grid becomes the current grid
-        grid = new_grid
-
-    return np.sum(grid == '#')
+    return grid.astype(int).sum()
 
 
 if __name__ == "__main__":
