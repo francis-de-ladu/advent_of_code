@@ -9,9 +9,9 @@ import numpy as np
 def transform(puzzle):
     scanners = []
     for scanner in '\n'.join(puzzle).split('\n\n'):
-        coords = np.asarray([[int(val) for val in line.split(',')]
-                             for line in scanner.split('\n')[1:]])
-        scanners.append(coords)
+        beacons = np.asarray([[int(val) for val in line.split(',')]
+                              for line in scanner.split('\n')[1:]])
+        scanners.append(beacons)
 
     return scanners
 
@@ -40,7 +40,7 @@ def attempt_merge(current, candidate, recenter, positions, min_overlap=12):
     current_coords, candidate_coords = [], []
     for cur_coords in current:
         for cand_coords in candidate:
-            # use absolute values to perform comparision
+            # use absolute values to perform comparisons
             if np.all(np.abs(cur_coords) == np.abs(cand_coords)):
                 current_coords.append(cur_coords)
                 candidate_coords.append(cand_coords)
