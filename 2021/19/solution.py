@@ -52,11 +52,10 @@ def attempt_merge(current, candidate, recenter, positions, min_overlap=12):
     # for each axis, check the number of equal values
     current_coords = np.asarray(current_coords)
     candidate_coords = np.asarray(candidate_coords)
-    comparison = np.sum(current_coords == candidate_coords, axis=0)
+    comparison = np.all(current_coords == candidate_coords, axis=0)
 
-    for axis, comp in enumerate(comparison):
-        # transform if number of equal values in axis is less than overlap size
-        if comp < len(current_coords):
+    for axis, is_equal in enumerate(comparison):
+        if not is_equal:
             candidate[:, axis] *= -1
             recenter[axis] *= -1
 
