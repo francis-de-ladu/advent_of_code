@@ -39,7 +39,10 @@ def run_on_input(input_path, part1, part2, p1_kwargs, p2_kwargs,
 
     # execute parts 1 and 2 on the data
     answer1 = part1(data, **p1_kwargs)
-    answer2 = part2(data, **p2_kwargs)
+    if isinstance(answer1, tuple):
+        answer1, answer2 = answer1
+    else:
+        answer2 = part2(data, **p2_kwargs)
 
     print(Path(input_path).stem.upper() + ':')
     print("Part1:", answer1)

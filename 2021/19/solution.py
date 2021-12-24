@@ -54,6 +54,7 @@ def attempt_merge(current, candidate, recenter, positions, min_overlap=12):
     candidate_coords = np.asarray(candidate_coords)
     comparison = np.all(current_coords == candidate_coords, axis=0)
 
+    # flip axes where values from merged scanners and candidate and not equal
     for axis, is_equal in enumerate(comparison):
         if not is_equal:
             candidate[:, axis] *= -1
@@ -69,7 +70,7 @@ def attempt_merge(current, candidate, recenter, positions, min_overlap=12):
     return new_current, positions, True
 
 
-def part1(scanners, part2=False):
+def part1(scanners):
     scanners = deepcopy(scanners)
     current = scanners.pop(0)
     positions = np.asarray([[0, 0, 0]])
@@ -97,14 +98,12 @@ def part1(scanners, part2=False):
             if is_success:
                 scanners.pop(idx)
 
-    if part2:
-        highest_dist = 0
-        for i, pos1 in enumerate(positions):
-            for pos2 in positions[i + 1:]:
-                highest_dist = max(highest_dist, np.sum(np.abs(pos1 - pos2)))
-        return highest_dist
+    highest_dist = 0
+    for i, pos1 in enumerate(positions):
+        for pos2 in positions[i + 1:]:
+            highest_dist = max(highest_dist, np.sum(np.abs(pos1 - pos2)))
 
-    return len(current)
+    return len(current), highest_dist
 
 
 if __name__ == "__main__":
@@ -114,7 +113,7 @@ if __name__ == "__main__":
 
     # keyword arguments to part1 and part2 functions
     p1_kwargs = dict()
-    p2_kwargs = dict(part2=True)
+    p2_kwargs = dict()
 
     # solutions to examples given for validation
     test_solutions = [
