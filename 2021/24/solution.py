@@ -1,137 +1,80 @@
 import os
 import sys
-from itertools import product, starmap
-from operator import add, eq, floordiv, mod, mul
-
-from tqdm import tqdm
 
 
 def transform(puzzle):
     return puzzle
 
 
+def get_int_value(data, block_len, instr_idx):
+    indices = range(instr_idx, len(data), block_len)
+    return [int(data[idx].split()[-1]) for idx in indices]
+
+
+def part1(data, block_len=18, inc_x_idx=5, inc_y_idx=15, div_z_idx=4, inp_w_values=range(9, 0, -1)):
+    inc_x = get_int_value(data, block_len, inc_x_idx)
+    # inc_y = get_int_value(data, block_len, inc_y_idx)
+    # div_z = get_int_value(data, block_len, div_z_idx)
+
+    vars = {'w': 0, 'x': 0, 'y': 0, 'z': 0}
+    xs = [int(not any(x + inc in range(1, 10) for x in range(26)))
+          for inc in inc_x]
+
+    model_no = search_best_input(
+        data, vars.copy(), '', xs, block_len, inp_w_values)
+
+    return int(model_no)
+
+
+def search_best_input(instrs, vars, prefix, xs, block_len, inp_w_values):
+    if len(instrs) == 0:
+        return prefix
+
+    for inp_w in map(str, inp_w_values):
+        try:
+            block, rest = instrs[:block_len], instrs[block_len:]
+            new_vars = run_on_block(
+                inp_w, vars.copy(), xs[0], block)
+            model_no = search_best_input(
+                rest, new_vars.copy(), prefix + inp_w, xs[1:], block_len, inp_w_values)
+            if model_no is not None:
+                return model_no
+        except Exception:
+            pass
+
+    return None
+
+
+def run_on_block(model_no, vars, x_val, instrs):
+    for i, instr in enumerate(instrs):
+        vars, model_no = exec_instruction(model_no, vars, instr)
+        if instr == 'eql x 0' and vars['x'] != x_val:
+            raise ValueError()
+
+    return vars
+
+
 def exec_instruction(model_no, vars, instr):
-    instr, operands = instr[:3], instr[4:]
-    # print()
-    # print(instr, operands)
-    if instr == 'inp':
-        vars[operands], model_no = int(model_no[0]), model_no[1:]
+    op, *operands = instr.split()
+    if op == 'inp':
+        a, *_ = operands
+        vars[a], model_no = int(model_no[0]), model_no[1:]
     else:
-        op1, op2 = operands.split()
-        op2 = vars[op2] if op2 in vars else int(op2)
-        # print(op1, op2, vars)
-        vars[op1] = {
-            'ass': lambda a, b: b,
+        a, b = operands
+        b = vars[b] if b in vars else int(b)
+
+        if op == 'div' and b == 0 or op == 'mod' and (vars[a] < 0 or b <= 0):
+            raise ZeroDivisionError()
+
+        vars[a] = {
             'add': lambda a, b: a + b,
             'mul': lambda a, b: a * b,
             'div': lambda a, b: a // b,
             'mod': lambda a, b: a % b,
             'eql': lambda a, b: int(a == b),
-        }[instr](vars[op1], op2)
+        }[op](vars[a], b)
 
-    # print(vars)
     return vars, model_no
-
-
-def eval_operand(vars, operand):
-    if operand in vars:
-        return vars[operand]
-    return {int(operand)}
-
-
-def part1(data):
-    reduced_set = data
-    current_op = [data[0]]
-
-    while True:
-        vars = {'w': set(map(int, '123456789')), 'x': {0}, 'y': {0}, 'z': {0}}
-        print()
-        data = reduced_set
-        reduced_set = []
-        for i, instr1 in enumerate(data[1:]):
-            # compare instruction target var with current operation target var
-            if not instr1.startswith('inp') and instr1[4] == current_op[0][4] and i != len(data) - 1:
-                current_op.append(instr1)
-                continue
-
-            if i == len(data) - 1:
-                current_op.append(instr1)
-
-            combined = []
-            for instr2 in current_op:
-                operator, target, operands = \
-                    instr2[:3], instr2[4], instr2[4:].split()
-                # print(instr2, operator, target, operands)
-                operands = [eval_operand(vars, op) for op in operands]
-
-                if operator == 'inp':
-                    result = set(map(int, '123456789'))
-                else:
-                    if operator == 'ass':
-                        result = operands[-1]
-                    elif operator == 'add':
-                        result = set(starmap(add, product(*operands)))
-                    elif operator == 'mul':
-                        result = set(starmap(mul, product(*operands)))
-                    elif operator == 'div':
-                        operands[-1].discard(0)
-                        result = set(starmap(floordiv, product(*operands)))
-                    elif operator == 'mod':
-                        operands[-1].discard(0)
-                        result = set(starmap(mod, product(*operands)))
-                    elif operator == 'eql':
-                        result = set(map(int, starmap(eq, product(*operands))))
-                    else:
-                        print(f'Invalid instruction: {instr2}')
-                        exit()
-
-                if result == vars[target] and 'w' not in instr2:
-                    continue
-
-                if len(result) == 1:
-                    combined = [f'ass {target} {list(result)[0]}']
-                elif result == operands[-1]:
-                    combined = [f'ass {target} {instr2[6:]}']
-                else:
-                    combined.append(instr2)
-
-                vars[target] = result
-
-            reduced_set.extend(combined)
-            current_op = [instr1]
-            print(i, len(reduced_set))
-
-        for i, instr in enumerate(reduced_set):
-            print(i + 1, instr)
-
-        if len(reduced_set) == len(data):
-            break
-
-    for model_no in tqdm(map(str, range(99999999999999, 0, -1))):
-        if '0' in model_no:
-            continue
-
-        model_no_backup = model_no
-
-        vars = {'w': 0, 'x': 0, 'y': 0, 'z': 0}
-        for i, instr in enumerate(data):
-            # print(i, instr)
-            try:
-                vars, model_no = exec_instruction(model_no, vars, instr)
-            except ZeroDivisionError:
-                print("ERROR")
-                vars['z'] = -1
-                break
-
-        print(model_no_backup, vars)
-        if vars['z'] == 0:
-            return model_no_backup
-
-    return
-
-
-def part2(data):
-    return
 
 
 if __name__ == "__main__":
@@ -141,7 +84,7 @@ if __name__ == "__main__":
 
     # keyword arguments to part1 and part2 functions
     p1_kwargs = dict()
-    p2_kwargs = dict()
+    p2_kwargs = dict(inp_w_values=range(1, 10))
 
     # solutions to examples given for validation
     test_solutions = [
@@ -152,11 +95,11 @@ if __name__ == "__main__":
     kwargs = dict(
         transform=transform,
         part1=part1,
-        part2=part2,
+        part2=part1,
         p1_kwargs=p1_kwargs,
         p2_kwargs=p2_kwargs,
         test_solutions=test_solutions,
-        submit=False,
+        submit=True,
         verbose=False,
     )
 
