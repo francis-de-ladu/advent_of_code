@@ -3,42 +3,51 @@ import sys
 
 
 def transform(puzzle):
-    return puzzle
+    blocks = []
+    current = [puzzle[0]]
+
+    for instr in puzzle[1:]:
+        if instr == current[0]:
+            blocks.append(current)
+            current = [instr]
+        else:
+            current.append(instr)
+
+    blocks.append(current)
+    return blocks
 
 
-def get_int_value(data, block_len, instr_idx):
-    indices = range(instr_idx, len(data), block_len)
-    return [int(data[idx].split()[-1]) for idx in indices]
+def part1(blocks, inc_x_idx=5, inc_y_idx=15, div_z_idx=4, inp_w_vals=range(9, 0, -1)):
+    inc_x = [int(block[inc_x_idx].split()[-1]) for block in blocks]
+    # inc_y = [int(block[inc_y_idx].split()[-1]) for block in blocks]
+    # div_z = [int(block[div_z_idx].split()[-1]) for block in blocks]
 
-
-def part1(data, block_len=18, inc_x_idx=5, inc_y_idx=15, div_z_idx=4, inp_w_values=range(9, 0, -1)):
-    inc_x = get_int_value(data, block_len, inc_x_idx)
-    # inc_y = get_int_value(data, block_len, inc_y_idx)
-    # div_z = get_int_value(data, block_len, div_z_idx)
+    mod_x = 26
+    x_eql_w = [1 - mod_x <= inc <= 0 for inc in inc_x]
 
     vars = {'w': 0, 'x': 0, 'y': 0, 'z': 0}
-    xs = [int(not any(x + inc in range(1, 10) for x in range(26)))
-          for inc in inc_x]
-
     model_no = search_best_input(
-        data, vars.copy(), '', xs, block_len, inp_w_values)
+        blocks, vars.copy(), '', x_eql_w, inp_w_vals)
 
     return int(model_no)
 
 
-def search_best_input(instrs, vars, prefix, xs, block_len, inp_w_values):
-    if len(instrs) == 0:
+def search_best_input(blocks, vars, prefix, x_eql_w, inp_w_vals):
+    if len(blocks) == 0:
         return prefix
 
-    for inp_w in map(str, inp_w_values):
+    current, others = blocks[0], blocks[1:]
+    for inp_w in map(str, inp_w_vals):
         try:
-            block, rest = instrs[:block_len], instrs[block_len:]
             new_vars = run_on_block(
-                inp_w, vars.copy(), xs[0], block)
-            model_no = search_best_input(
-                rest, new_vars.copy(), prefix + inp_w, xs[1:], block_len, inp_w_values)
-            if model_no is not None:
-                return model_no
+                inp_w, vars.copy(), x_eql_w[0], current)
+            new_prefix = prefix + inp_w
+            new_model_no = search_best_input(
+                others, new_vars.copy(), new_prefix, x_eql_w[1:], inp_w_vals)
+
+            if new_model_no is not None:
+                return new_model_no
+
         except Exception:
             pass
 
@@ -48,7 +57,7 @@ def search_best_input(instrs, vars, prefix, xs, block_len, inp_w_values):
 def run_on_block(model_no, vars, x_val, instrs):
     for i, instr in enumerate(instrs):
         vars, model_no = exec_instruction(model_no, vars, instr)
-        if instr == 'eql x 0' and vars['x'] != x_val:
+        if instr == 'eql x w' and vars['x'] != x_val:
             raise ValueError()
 
     return vars
@@ -84,7 +93,7 @@ if __name__ == "__main__":
 
     # keyword arguments to part1 and part2 functions
     p1_kwargs = dict()
-    p2_kwargs = dict(inp_w_values=range(1, 10))
+    p2_kwargs = dict(inp_w_vals=range(1, 10))
 
     # solutions to examples given for validation
     test_solutions = [
