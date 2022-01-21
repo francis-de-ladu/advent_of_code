@@ -2,8 +2,6 @@ import os
 import re
 import sys
 
-import numpy as np
-
 
 def transform(puzzle):
     pattern = re.compile(r',?\s')
