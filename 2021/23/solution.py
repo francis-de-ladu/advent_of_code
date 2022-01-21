@@ -79,27 +79,26 @@ def get_valid_dests(burrow, rooms, start):
                 new_current.add((num_moves + y - 1, Pos(1, x)))
                 current = new_current
                 continue
+            elif x == rooms[amph].pos and rooms[amph].is_open(burrow):
+                # enter room
+                while burrow[y + 1, x] == '.':
+                    y += 1
+                    num_moves += 1
+                dests = PriorityQueue()
+                dests.put((num_moves, Pos(y, x)))
+                return dests
             else:
-                if x == rooms[amph].pos and rooms[amph].is_open(burrow):
-                    # enter room
-                    while burrow[y + 1, x] == '.':
-                        y += 1
-                        num_moves += 1
-                    dests = PriorityQueue()
-                    dests.put((num_moves, Pos(y, x)))
-                    return dests
-                else:
-                    # move in hallway
-                    if x >= start.x and burrow[y, x + 1] == '.':
-                        new_dest = (num_moves + 1, Pos(y, x + 1))
-                        new_current.add(new_dest)
-                        if start.y > 1 and x + 1 not in (3, 5, 7, 9):
-                            dests.put(new_dest)
-                    if x <= start.x and burrow[y, x - 1] == '.':
-                        new_dest = (num_moves + 1, Pos(y, x - 1))
-                        new_current.add(new_dest)
-                        if start.y > 1 and x - 1 not in (3, 5, 7, 9):
-                            dests.put(new_dest)
+                # move in hallway
+                if x >= start.x and burrow[y, x + 1] == '.':
+                    new_dest = (num_moves + 1, Pos(y, x + 1))
+                    new_current.add(new_dest)
+                    if start.y > 1 and x + 1 not in (3, 5, 7, 9):
+                        dests.put(new_dest)
+                if x <= start.x and burrow[y, x - 1] == '.':
+                    new_dest = (num_moves + 1, Pos(y, x - 1))
+                    new_current.add(new_dest)
+                    if start.y > 1 and x - 1 not in (3, 5, 7, 9):
+                        dests.put(new_dest)
 
         current = new_current
 
