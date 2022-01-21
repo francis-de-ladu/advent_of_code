@@ -124,8 +124,8 @@ def get_min_energy(burrow, rooms, energy):
 
     for pos, amph in enumerate(burrow[1, 1:-1]):
         if amph != '.':
-            family_moves[amph] += abs(pos -
-                                      rooms[amph].pos) + room_depths[amph]
+            family_moves[amph] += \
+                abs(pos - rooms[amph].pos) + room_depths[amph]
             room_depths[amph] -= 1
 
     min_energy = energy
