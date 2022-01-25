@@ -2,9 +2,22 @@ import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 import requests
+
+
+def timeit(func):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = func(*args, **kw)
+        te = time.time()
+
+        print(f'func `{func.__name__}` took: {te-ts:2.4f} sec')
+        return result
+
+    return timed
 
 
 def _get_cookie(path="cookie.json"):
